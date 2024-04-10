@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterblocproj/cubit/app_cubit_states.dart';
+import 'package:flutterblocproj/cubit/app_cubits.dart';
 import 'package:flutterblocproj/misc/colors.dart';
 import 'package:flutterblocproj/widgets/app_buttons.dart';
 import 'package:flutterblocproj/widgets/app_large_text.dart';
@@ -17,7 +20,9 @@ class _DetailPageState extends State<DetailPage> {
   int selectedIndex=-1;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocBuilder<AppCubits, CubitStates>(builder: (context, state){
+      DetailState detail = state as DetailState;
+      return Scaffold(
       body: Container(
         width: double.maxFinite,
         height: double.maxFinite,
@@ -31,7 +36,7 @@ class _DetailPageState extends State<DetailPage> {
                   height: 575,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("img/mountain.jpeg"),
+                      image: NetworkImage("http://mark.bslmeiyu.com/uploads/"+detail.place.img),
                       fit: BoxFit.cover
                     ),
                 ))
@@ -41,7 +46,9 @@ class _DetailPageState extends State<DetailPage> {
               top: 60,
               child: Row(
                 children: [
-                  IconButton(onPressed: (){}, icon: Icon(Icons.menu),
+                  IconButton(onPressed: (){
+                    BlocProvider.of<AppCubits>(context).goHome();
+                  }, icon: Icon(Icons.menu),
                   color: Colors.white,
                   )
                 ],
@@ -65,15 +72,15 @@ class _DetailPageState extends State<DetailPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        AppLargeText(text: "Yosemite", color: Colors.black.withOpacity(0.8),),
-                        AppLargeText(text: "\$ 250", color: AppColors.mainColor)
+                        AppLargeText(text: detail.place.name, color: Colors.black.withOpacity(0.8),),
+                        AppLargeText(text: "\$"+detail.place.price.toString(), color: AppColors.mainColor)
                       ],
                     ),
                     SizedBox(height: 10,),
                     Row(
                       children: [
                         Icon(Icons.location_on, color: AppColors.mainColor,),
-                        AppText(text: "USA, California", color: AppColors.textColor1,)
+                        AppText(text: detail.place.location, color: AppColors.textColor1,)
                       ],
                     ),
                     SizedBox(height: 20,),
@@ -81,10 +88,10 @@ class _DetailPageState extends State<DetailPage> {
                       children: [
                         Wrap(
                       children: List.generate(5, (index) {
-                        return Icon(Icons.star, color: index<starsReceived?AppColors.starColor:AppColors.textColor2);
+                        return Icon(Icons.star, color: index<detail.place.stars?AppColors.starColor:AppColors.textColor2);
                         })
                     ),
-                    AppText(text: "(4.0)", color: AppColors.textColor2,)
+                    AppText(text: "(5.0)", color: AppColors.textColor2,)
                       ],
                     ),
                     SizedBox(height: 25,),
@@ -116,7 +123,7 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                     SizedBox(height: 20,),
                     AppLargeText(text: "Description", color: Colors.black.withOpacity(0.8), size: 20,),
-                    AppText(text: "Yoesemite National Park is located in central Sierra, Nevada. It is located near the wild protected areas.", color: AppColors.mainTextColor,)
+                    AppText(text: detail.place.description, color: AppColors.mainTextColor,)
                   ],),
                 )),
                 Positioned(
@@ -142,5 +149,6 @@ class _DetailPageState extends State<DetailPage> {
           ],
         ),),
         );
+    });
   }
 }
