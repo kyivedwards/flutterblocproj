@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterblocproj/cubit/app_cubit_states.dart';
+import 'package:flutterblocproj/cubit/app_cubits.dart';
 import 'package:flutterblocproj/misc/colors.dart';
 import 'package:flutterblocproj/widgets/app_large_text.dart';
 import 'package:flutterblocproj/widgets/app_text.dart';
@@ -23,7 +26,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {    
   Widget build(BuildContext context) {
     TabController _tabController = TabController(length: 3, vsync: this);
     return Scaffold(
-      body: Column(
+      body: BlocBuilder<AppCubits, CubitStates>(
+        builder: (context, state) {
+          if(state is LoadedState){
+            var info = state.places;
+            return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //menu text
@@ -81,29 +88,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {    
             controller: _tabController,
             children: [
               ListView.builder(
-                itemCount: 3,
+                itemCount: info.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
-                  return
-                  Container(
-                    margin: const EdgeInsets.only(right: 15, top: 10),
-                    width: 200,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                      image: DecorationImage(
-                        image: AssetImage(
-                          "img/mountain.jpeg"
-                        ),
-                       fit: BoxFit.cover,
-                      )
+                  return GestureDetector(
+                    onTap:(){
+                      BlocProvider.of<AppCubits>(context).detailPage(info[index]);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 15, top: 10),
+                      width: 200,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        image: DecorationImage(
+                          //pull images from database
+                          image: NetworkImage("http://mark.bslmeiyu.com/uploads/"+info[index].img),
+                         fit: BoxFit.cover,
+                        )
+                      ),
                     ),
                   );
                 },
               ),
-              Text("There"),
-              Text("Bye"),
+              Text("Test 2"),
+              Text("Test 3"),
             ],
           ),
         ),
@@ -134,6 +144,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {    
             return Container(
               margin: EdgeInsets.only(right: 30),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                       margin: const EdgeInsets.only(right: 5,),
@@ -159,9 +170,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {    
             );
           })
         )
-
         ],
-      ),
+      );
+          }else{
+            //return empty container to test
+            return Container();
+          }
+        },
+      )
     );
   }
 }
